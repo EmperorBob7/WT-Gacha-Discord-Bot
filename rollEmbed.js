@@ -1,0 +1,11 @@
+const Discord = require('discord.js');
+module.exports = new Discord.MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle('World Trigger Bot')
+    .setURL('https://discord.gg/WvbBzgS')
+    .setAuthor('Emperor Bob#7598', 'https://cdn.discordapp.com/avatars/259841719141531649/335b106a9086e638167d4f30ffaef5fa.webp', 'https://emperorbob7.github.io/')
+    .setDescription('Rolling')
+    .setThumbnail('https://cdn.discordapp.com/avatars/259841719141531649/335b106a9086e638167d4f30ffaef5fa.webp')
+    .addField('b!roll starter', 'Does a multi roll from the starting dash banner.', false)
+    .addField('b!roll gold-chibi', 'Does a multi roll from the gold chibi series.', false)
+    .setTimestamp()

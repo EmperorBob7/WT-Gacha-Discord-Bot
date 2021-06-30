@@ -1,0 +1,20 @@
+{
+  "name": "bobot",
+  "version": "1.0.0",
+  "description": "Is a bot for Bob",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ."
+  },
+  "author": "Emperor Bob",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^7.1.2",
+    "discord-command-parser": "^1.5.3",
+    "discord.js": "^13.0.0-dev.acdcb906ae4691374f5d2bda1315a484c8674938",
+    "dotenv": "^10.0.0",
+    "mee6-levels-api": "^1.2.0",
+    "performance-now": "^2.1.0",
+    "simple-gacha": "^1.1.2"
+  }
+}
