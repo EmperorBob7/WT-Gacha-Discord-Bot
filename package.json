@@ -1,0 +1,19 @@
+{
+  "name": "bobot",
+  "version": "1.0.0",
+  "description": "Is a bot for Bob",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ."
+  },
+  "author": "Emperor Bob",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/rest": "^1.1.0",
+    "discord.js": "^14.3.0",
+    "dotenv": "^10.0.0",
+    "google-spreadsheet": "^3.3.0",
+    "performance-now": "^2.1.0",
+    "simple-gacha": "^1.1.2"
+  }
+}
