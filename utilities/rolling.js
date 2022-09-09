@@ -1,7 +1,7 @@
 const gacha = require("simple-gacha");
 const characters = require("./characters.json");
 const startDash = require('../banners/StartDash.json');
-
+// Update rates of startDash
 class Rolling {
     constructor() {
         this.rolled = [];
