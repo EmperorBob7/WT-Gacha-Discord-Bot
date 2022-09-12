@@ -15,7 +15,7 @@ module.exports = {
             if (x < 1) {
                 msg.editReply({ content: "You must wait until: " + new Date(date.setDate(date.getDate() + 1)).toUTCString() + " before getting your daily." });
             } else {
-                spreadsheet.setCurrency(msg.user.id, spreadsheet.getCurrency(msg.user.id) + 1000);
+                spreadsheet.setCurrency(msg.user.id, spreadsheet.getCurrency(msg.user.id) + 10000);
                 spreadsheet.setDate(msg.user.id);
                 msg.editReply({ content: "Your balance has been updated!" });
             }
