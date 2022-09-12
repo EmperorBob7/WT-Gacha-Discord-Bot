@@ -5,15 +5,16 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('givecurrency')
         .setDescription('[Admin Only] Gives a user Currency')
-        .addIntegerOption(option => {
+        .addIntegerOption(option =>
             option.setName("amount")
+                .setDescription("The amount of currency you want.")
                 .setRequired(true)
-        })
-        .addStringOption(option => {
+        )
+        .addStringOption(option =>
             option.setName("id")
                 .setDescription("ID of user you wish to give currency to.")
                 .setRequired(true)
-        }),
+        ),
     execute(msg, args) {
         if (admins.includes(msg.user.id)) {
             let ID = msg.options.getString("id");

@@ -70,7 +70,7 @@ module.exports = class SpreadsheetManager {
 
     getCurrency(userID) {
         if (this.rows[userID])
-            return this.rows[userID].currency;
+            return Number(this.rows[userID].currency);
         return null;
     }
 
