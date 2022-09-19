@@ -97,7 +97,7 @@ module.exports = class SpreadsheetManager {
                 "characters": "[]",
                 "starter": -1,
                 "currency": 10000,
-                "date": new Date().toUTCString()
+                "date": new Date(new Date() - 86400000).toUTCString()
             };
             await this.sheet.addRow(newRow);
             await this.sheet.saveUpdatedCells();

@@ -7,7 +7,7 @@ module.exports = {
 		.setName('currency')
 		.setDescription('Get amount of currency you have in the Database.'),
 	execute(msg, args) {
-		if (getUser(msg.user.id) === undefined) {
+		if (getUser(msg.user.id) === null) {
 			msg.editReply({ content: "You need to register before doing this command, do b!register" });
 			return;
 		}
