@@ -1,6 +1,6 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
 const creds = JSON.parse(process.env.CREDENTIALS);
-
+const characters = require("./characters.json");
 const doc = new GoogleSpreadsheet("18xP6Is3Wsb-cyfxnmJ4uk7GZa8qSBD0z8hAbDE-jKAE");
 
 module.exports = class SpreadsheetManager {
@@ -83,7 +83,6 @@ module.exports = class SpreadsheetManager {
 
     getUserInfo(userID) {
         let row = this.rows[userID];
-        console.log(row);
         if (row == null) {
             return null;
         } else {
@@ -105,5 +104,26 @@ module.exports = class SpreadsheetManager {
             await this.updateLocalRow();
             res();
         });
+    }
+
+    getUserCharacterList(userID, rarity) {
+        let row = this.rows[userID];
+        if (row == null) {
+            return null;
+        }
+        let output = [];
+        const chars = this.getCharacters(userID);
+        for (const charID of chars) {
+            if (characters[charID].rarity == rarity) {
+                output.push(this.characterToString(charID));
+            }
+        }
+        output.sort();
+        return output.join("\n");
+    }
+
+    characterToString(characterID) {
+        const char = characters[characterID];
+        return `${char.rarity}★ ${char.name} - ${char.series} - ${characterID}`;
     }
 };

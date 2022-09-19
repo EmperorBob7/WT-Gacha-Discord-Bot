@@ -15,13 +15,11 @@ class Rolling {
         return this.banners[banner];
     }
     roll(banner) {
-        console.log(banner);
         if (this.series[banner] == null)
             return null;
         return gacha.simple(this.series[banner]);
     }
     getCharacter(id) {
-        console.log(id);
         return characters[id];
     }
 }

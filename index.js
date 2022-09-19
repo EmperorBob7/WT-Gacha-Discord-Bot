@@ -79,7 +79,7 @@ client.on('interactionCreate', async interaction => {
     if (x[1] === "gacha1") {
         roll(interaction, banner);
     } else {
-        interaction.reply({ content: "Sorry x10 isn't available currently." });
+        roll10(interaction, banner);
     }
 });
 
@@ -88,7 +88,8 @@ client.on('interactionCreate', async interaction => {
  * @param {Discord.Message} msg 
  */
 function roll(msg, banner) {
-    let id = msg.user.id;
+    const id = msg.user.id;
+    const cost = 500;
     if (getUser(id) === undefined) {
         msg.reply({ content: "You need to register before doing this command, do b!register" });
         return;
@@ -96,19 +97,53 @@ function roll(msg, banner) {
     let currency = getCurrency(id);
     if (currency === null) {
         msg.reply({ content: "You are not registered." });
-    } else if (currency < 500) {
+    } else if (currency < cost) {
         msg.reply({ content: "I'm sorry, you do not have enough currency to do a 1x roll, try again later.\nYour remaining balance is: " + currency });
-        return;
     } else {
-        removeCurrency(id, currency, 500);
+        removeCurrency(id, currency, cost);
+        let rollResult = gacha.roll(banner);
+        spreadsheet.addCharacter(id, rollResult.pick.id);
+        rollResult = gacha.getCharacter(rollResult.pick.id);
+        msg.reply({
+            embeds: [new EmbedBuilder()
+                .setDescription(`${msg.user.username}#${msg.user.discriminator} You Pulled: ${rollResult.name}`)
+                .setImage(rollResult.source)]
+        });
     }
-    let rollResult = gacha.roll(banner);
-    spreadsheet.addCharacter(id, rollResult.pick.id);
-    rollResult = gacha.getCharacter(rollResult.pick.id);
-    msg.reply({
-        embeds: [new EmbedBuilder()
-            .setDescription(`${msg.user.username}#${msg.user.discriminator} You Pulled: ${rollResult.name}`)
-            .setImage(rollResult.source)]
+}
+
+async function roll10(msg, banner) {
+    const id = msg.user.id;
+    const cost = 500 * 10;
+    if (getUser(id) === undefined) {
+        msg.reply({ content: "You need to register before doing this command, do b!register" });
+        return;
+    }
+    let currency = getCurrency(id);
+    if (currency === null) {
+        msg.reply({ content: "You are not registered." });
+    } else if (currency < cost) {
+        msg.reply({ content: "I'm sorry, you do not have enough currency to do a 10x roll, try again later.\nYour remaining balance is: " + currency });
+    } else {
+        removeCurrency(id, currency, cost);
+        msg.reply({ content: "Rolling 10 units for " + msg.user.username });
+        for (let i = 0; i < 10; i++) {
+            let rollResult = gacha.roll(banner);
+            spreadsheet.addCharacter(id, rollResult.pick.id);
+            rollResult = gacha.getCharacter(rollResult.pick.id);
+            msg.channel.send({
+                embeds: [new EmbedBuilder()
+                    .setDescription(`${msg.user.username}#${msg.user.discriminator} You Pulled: ${rollResult.name}`)
+                    .setImage(rollResult.source)]
+            });
+            await sleep(1000);
+        }
+    }
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
     });
 }
 
