@@ -5,7 +5,7 @@ const SpreadSheet = require("./utilities/spreadsheet");
 const spreadsheet = new SpreadSheet();
 module.exports = spreadsheet;
 
-const { Client, GatewayIntentBits, Partials, Discord, Routes, Collection, EmbedBuilder, Embed } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, Routes, Collection, EmbedBuilder, Message } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const client = new Client({ intents: [GatewayIntentBits.Guilds], partials: [Partials.Channel] });
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
@@ -85,7 +85,7 @@ client.on('interactionCreate', async interaction => {
 
 /**
  * 
- * @param {Discord.Message} msg 
+ * @param {Message} msg 
  */
 function roll(msg, banner) {
     const id = msg.user.id;
@@ -112,6 +112,12 @@ function roll(msg, banner) {
     }
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {String} banner 
+ * @returns 
+ */
 async function roll10(msg, banner) {
     const id = msg.user.id;
     const cost = 500 * 10;
@@ -126,18 +132,29 @@ async function roll10(msg, banner) {
         msg.reply({ content: "I'm sorry, you do not have enough currency to do a 10x roll, try again later.\nYour remaining balance is: " + currency });
     } else {
         removeCurrency(id, currency, cost);
-        msg.reply({ content: "Rolling 10 units for " + msg.user.username });
+        msg.reply({ content: "Pulling x10" });
+        /** @type {Message} */
+        let msgToEdit;
+        let embed;
+        let output = [];
         for (let i = 0; i < 10; i++) {
             let rollResult = gacha.roll(banner);
+            output.push(spreadsheet.characterToString(rollResult.pick.id));
             spreadsheet.addCharacter(id, rollResult.pick.id);
             rollResult = gacha.getCharacter(rollResult.pick.id);
-            msg.channel.send({
-                embeds: [new EmbedBuilder()
-                    .setDescription(`${msg.user.username}#${msg.user.discriminator} You Pulled: ${rollResult.name}`)
-                    .setImage(rollResult.source)]
-            });
-            await sleep(1000);
+            let desc = `${msg.user.username}#${msg.user.discriminator} You Pulled: ${rollResult.name}`;
+            embed = new EmbedBuilder()
+                .setDescription(desc)
+                .setImage(rollResult.source);
+            if (msgToEdit) {
+                await msgToEdit.edit({ embeds: [embed] });
+            } else {
+                msgToEdit = await msg.channel.send({ embeds: [embed] });
+            }
+            await sleep(750);
         }
+        embed.setDescription(`${msg.user.username}#${msg.user.discriminator} You Pulled:\n${output.join("\n")}`);
+        msgToEdit.edit({ embeds: [embed] });
     }
 }
 

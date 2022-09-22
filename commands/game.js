@@ -5,5 +5,6 @@ module.exports = {
 		.setName('game')
 		.setDescription('TBD'),
 	execute(msg, args) {
+		msg.editReply({ content: "Does not exist yet" });
 	}
 };
