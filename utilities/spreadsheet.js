@@ -6,6 +6,9 @@ const doc = new GoogleSpreadsheet("18xP6Is3Wsb-cyfxnmJ4uk7GZa8qSBD0z8hAbDE-jKAE"
 module.exports = class SpreadsheetManager {
     constructor() {
         this.setUpSheet();
+        this.changed = new Set();
+        this.canSave = true;
+        setInterval(this.save.bind(this), 30_000); // Avoid API Explosion
     }
 
     async setUpSheet() {
@@ -35,8 +38,8 @@ module.exports = class SpreadsheetManager {
 
     setDate(userID) {
         if (this.rows[userID]) {
+            this.changed.add(userID);
             this.rows[userID].date = new Date().toUTCString();
-            this.rows[userID].save();
         }
     }
 
@@ -47,24 +50,28 @@ module.exports = class SpreadsheetManager {
     }
 
     addCharacter(userID, characterID) {
+        this.canSave = false;
+
         if (this.rows[userID]) {
+            this.changed.add(userID);
+
             let set = new Set(JSON.parse(this.rows[userID].characters));
             set.add(Number(characterID));
             this.rows[userID].characters = JSON.stringify([...set]);
-            this.rows[userID].save();
         }
     }
 
     getStarter(userID) {
-        if (this.rows[userID])
+        if (this.rows[userID]) {
             return Number(this.rows[userID].starter);
+        }
         return null;
     }
 
     setStarter(userID, starter) {
         if (this.rows[userID]) {
+            this.changed.add(userID);
             this.rows[userID].starter = starter;
-            this.rows[userID].save();
         }
     }
 
@@ -76,8 +83,8 @@ module.exports = class SpreadsheetManager {
 
     setCurrency(userID, amount) {
         if (this.rows[userID]) {
+            this.changed.add(userID);
             this.rows[userID].currency = amount;
-            this.rows[userID].save();
         }
     }
 
@@ -92,6 +99,8 @@ module.exports = class SpreadsheetManager {
 
     async registerUser(userID) {
         return new Promise(async (res, rej) => {
+            this.canSave = false;
+
             let newRow = {
                 "userID": userID,
                 "characters": "[]",
@@ -100,10 +109,31 @@ module.exports = class SpreadsheetManager {
                 "date": new Date(new Date() - 86400000).toUTCString()
             };
             await this.sheet.addRow(newRow);
-            await this.sheet.saveUpdatedCells();
             await this.updateLocalRow();
+
+            this.changed.add(userID);
+            this.canSave = true;
             res();
         });
+    }
+
+    async save() {
+        //console.log("SAVING", this.canSave);
+        if (this.canSave) {
+            //console.log(this.changed);
+
+            let arr = [...this.changed];
+            for(let i = 0; i < arr.length && i < 30; i++) {
+                let id = arr[i];
+                await this.rows[id].save();
+            }
+            if(arr.length > 30) {
+                arr = arr.slice(30); // API LIMIT
+            } else {
+                arr = [];
+            }
+            this.changed = new Set(arr);
+        }
     }
 
     getUserCharacterList(userID, rarity) {

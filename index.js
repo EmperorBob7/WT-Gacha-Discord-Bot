@@ -5,23 +5,24 @@ const SpreadSheet = require("./utilities/spreadsheet");
 const spreadsheet = new SpreadSheet();
 module.exports = spreadsheet;
 
-const { Client, GatewayIntentBits, Partials, Routes, Collection, EmbedBuilder, Message } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, Routes, Collection, EmbedBuilder, Message, ButtonInteraction } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const client = new Client({ intents: [GatewayIntentBits.Guilds], partials: [Partials.Channel] });
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
-const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-client.commands = new Collection();
 
-const prefix = "b!";
 const getUser = require("./commands/getUser.js").getById;
 
 const Rolling = require("./utilities/rolling.js");
 const gacha = new Rolling();
 
+
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
+    client.commands = new Collection();
+    const commands = []; // For Routes
+
     for (const file of commandFiles) {
         const command = require(`./commands/${file}`);
         commands.push(command.data.toJSON());
@@ -57,20 +58,24 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-client.on('message', async msg => {
-    if (!msg.content.startsWith(prefix) || msg.author.bot) return;
-    const args = msg.content.slice(prefix.length).trim().split(/ +/);
-    const command = args.shift().toLowerCase();
+// client.on('message', async msg => {
+//     if (msg.author.bot) {
+//         return;
+//     }
 
-    if (!client.commands.has(command)) return;
+//     const args = msg.content.slice(prefix.length).trim().split(/ +/);
+//     const command = args.shift().toLowerCase();
 
-    try {
-        client.commands.get(command).execute(msg, args);
-    } catch (error) {
-        console.error(error);
-        message.reply('That is an invalid command, use b!help if you wish to see a list of commands.');
-    }
-});
+//     if (!client.commands.has(command)) return;
+
+//     try {
+//         client.commands.get(command).execute(msg, args);
+//     } catch (error) {
+//         console.error(error);
+//         message.reply('That is an invalid command, use b!help if you wish to see a list of commands.');
+//     }
+// });
+
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isButton()) return;
@@ -85,7 +90,8 @@ client.on('interactionCreate', async interaction => {
 
 /**
  * 
- * @param {Message} msg 
+ * @param {ButtonInteraction} msg 
+ * @param {String} banner
  */
 function roll(msg, banner) {
     const id = msg.user.id;
@@ -103,6 +109,8 @@ function roll(msg, banner) {
         removeCurrency(id, currency, cost);
         let rollResult = gacha.roll(banner);
         spreadsheet.addCharacter(id, rollResult.pick.id);
+        spreadsheet.canSave = true; // Update Sheet Allowed
+
         rollResult = gacha.getCharacter(rollResult.pick.id);
         msg.reply({
             embeds: [new EmbedBuilder()
@@ -114,48 +122,71 @@ function roll(msg, banner) {
 
 /**
  * 
- * @param {Message} msg 
+ * @param {ButtonInteraction} msg 
  * @param {String} banner 
  * @returns 
  */
 async function roll10(msg, banner) {
     const id = msg.user.id;
     const cost = 500 * 10;
+
     if (getUser(id) === undefined) {
         msg.reply({ content: "You need to register before doing this command, do b!register" });
         return;
     }
+
     let currency = getCurrency(id);
     if (currency === null) {
         msg.reply({ content: "You are not registered." });
     } else if (currency < cost) {
         msg.reply({ content: "I'm sorry, you do not have enough currency to do a 10x roll, try again later.\nYour remaining balance is: " + currency });
     } else {
-        removeCurrency(id, currency, cost);
-        msg.reply({ content: "Pulling x10" });
-        /** @type {Message} */
-        let msgToEdit;
-        let embed;
-        let output = [];
-        for (let i = 0; i < 10; i++) {
-            let rollResult = gacha.roll(banner);
-            output.push(spreadsheet.characterToString(rollResult.pick.id));
-            spreadsheet.addCharacter(id, rollResult.pick.id);
-            rollResult = gacha.getCharacter(rollResult.pick.id);
-            let desc = `${msg.user.username}#${msg.user.discriminator} You Pulled: ${rollResult.name}`;
-            embed = new EmbedBuilder()
-                .setDescription(desc)
-                .setImage(rollResult.source);
-            if (msgToEdit) {
-                await msgToEdit.edit({ embeds: [embed] });
-            } else {
-                msgToEdit = await msg.channel.send({ embeds: [embed] });
-            }
-            await sleep(750);
-        }
-        embed.setDescription(`${msg.user.username}#${msg.user.discriminator} You Pulled:\n${output.join("\n")}`);
-        msgToEdit.edit({ embeds: [embed] });
+        rollMultiple(id, currency, cost, msg, banner);
     }
+}
+
+/**
+ * 
+ * @param {String} id 
+ * @param {Number} currency 
+ * @param {Number} cost 
+ * @param {ButtonInteraction} msg 
+ * @param {String} banner 
+ */
+async function rollMultiple(id, currency, cost, msg, banner) {
+    removeCurrency(id, currency, cost);
+    await msg.reply({ content: "Pulling x10" });
+
+    /** @type {Message} */
+    let msgToEdit;
+    let embed;
+    let output = [];
+
+    for (let i = 0; i < 10; i++) {
+        // Roll a character
+        let rollResult = gacha.roll(banner);
+        output.push(spreadsheet.characterToString(rollResult.pick.id));
+        spreadsheet.addCharacter(id, rollResult.pick.id);
+        rollResult = gacha.getCharacter(rollResult.pick.id);
+
+        // Update message
+        let desc = `${msg.user.username}#${msg.user.discriminator} You Pulled: ${rollResult.name}`;
+        embed = new EmbedBuilder()
+            .setDescription(desc)
+            .setImage(rollResult.source);
+
+        // Send new message?
+        if (msgToEdit) {
+            await msgToEdit.edit({ embeds: [embed] });
+        } else {
+            msgToEdit = await msg.channel.send({ embeds: [embed] });
+        }
+        await sleep(750);
+    }
+    spreadsheet.canSave = true; // Let Save
+    
+    embed.setDescription(`${msg.user.username}#${msg.user.discriminator} You Pulled:\n${output.join("\n")}`);
+    msgToEdit.edit({ embeds: [embed] });
 }
 
 function sleep(ms) {

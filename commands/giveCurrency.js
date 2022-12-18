@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const spreadsheet = require("../index.js");
-const admins = ["259841719141531649", "549336604590735367"];
+const admins = process.env.ADMINS;
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('givecurrency')
@@ -25,6 +25,8 @@ module.exports = {
                 spreadsheet.setCurrency(ID, spreadsheet.getCurrency(ID) + AMOUNT);
                 msg.editReply({ content: "Balance successfully updated." });
             }
+        } else {
+            msg.editReply({ content: "Not an ADMIN" });
         }
     }
 };
