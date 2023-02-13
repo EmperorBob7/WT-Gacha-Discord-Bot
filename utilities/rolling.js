@@ -1,3 +1,11 @@
+/**
+ * @typedef {Object} Character
+ * @property {String} name The name
+ * @property {String} series chibi, manga, anime, etc...
+ * @property {String} source url
+ * @property {Number} rarity
+ */
+
 const gacha = require("simple-gacha");
 const characters = require("./characters.json");
 const startDash = require('../banners/StartDash.json');

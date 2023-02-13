@@ -40,6 +40,8 @@ client.on('ready', async () => {
     } catch (error) {
         console.error(error);
     }
+
+    client.channels.cache.get("825206515940982804").send("Started");
 });
 
 client.on('interactionCreate', async interaction => {
@@ -164,6 +166,7 @@ async function rollMultiple(id, currency, cost, msg, banner) {
 
     for (let i = 0; i < 10; i++) {
         // Roll a character
+        /**@type {Character} */
         let rollResult = gacha.roll(banner);
         output.push(spreadsheet.characterToString(rollResult.pick.id));
         spreadsheet.addCharacter(id, rollResult.pick.id);
@@ -181,10 +184,13 @@ async function rollMultiple(id, currency, cost, msg, banner) {
         } else {
             msgToEdit = await msg.channel.send({ embeds: [embed] });
         }
-        await sleep(750);
+
+        let sleepTime = 500;
+        sleepTime += (1000 * rollResult.rarity) / 2;
+        await sleep(sleepTime);
     }
     spreadsheet.canSave = true; // Let Save
-    
+
     embed.setDescription(`${msg.user.username}#${msg.user.discriminator} You Pulled:\n${output.join("\n")}`);
     msgToEdit.edit({ embeds: [embed] });
 }

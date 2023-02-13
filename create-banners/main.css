@@ -1,0 +1,41 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #222;
+    color: #EEE;
+    text-align: center;
+}
+
+main {
+    margin: auto;
+    width: 80%;
+}
+
+table {
+    border-collapse: collapse;
+    margin: auto;
+}
+
+td {
+    border: 1px solid white;
+    padding: 5px;
+}
+
+td img {
+    max-height: 15vh;
+}
+
+td button {
+    width: 5vw;
+    height: 5vw;
+    font-size: 250%;
+    background-color: transparent;
+    border: none;
+}
+
+.no {
+    opacity: 0.5;
+}
