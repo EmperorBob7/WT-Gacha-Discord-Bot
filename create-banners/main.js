@@ -8,6 +8,11 @@ const charByRarity = {
 };
 
 window.onload = async function () {
+    let id = 0;
+    for (let character of characters) {
+        character.id = id++;
+    }
+
     const table = document.getElementById("list");
     let index = 0;
     for (let character of characters) {
@@ -25,9 +30,9 @@ window.onload = async function () {
         let checkButton = document.createElement("button");
         checkButton.innerText = "✅";
         let i = index;
-        checkButton.addEventListener("click", () => {
+        //checkButton.addEventListener("click", () => {
             addToList(i, tr);
-        });
+        //});
         checkTD.appendChild(checkButton);
 
         let removeTD = document.createElement("td");
@@ -51,14 +56,35 @@ window.onload = async function () {
 
 function addToList(index, tr) {
     let character = characters[index];
-    charByRarity[character.rarity].push(character);
+    if (!charByRarity[character.rarity].includes(character)) {
+        charByRarity[character.rarity].push(character);
+    }
     tr.classList.remove("no");
 }
 
 function removeFromList(index, tr) {
     let character = characters[index];
     if (charByRarity[character.rarity].includes(character)) {
-        charByRarity[character.rarity].splice(charByRarity[character.rarity].indexOf(character));
+        charByRarity[character.rarity].splice(charByRarity[character.rarity].indexOf(character), 1);
     }
     tr.classList.add("no");
+}
+
+function generateData() {
+    let out = [];
+    for (let rarity in charByRarity) {
+        let data = charByRarity[rarity];
+        for (let character of data) {
+            if(character.id < 4) {
+                continue;
+            }
+            let current = {
+                "id": Number(character.id),
+                "weight": Number(document.getElementById(`rate${character.rarity}`).value) / data.length
+            };
+            out.push(current);
+        }
+    }
+    out.sort((x, y) => x.id - y.id);
+    console.log(out);
 }

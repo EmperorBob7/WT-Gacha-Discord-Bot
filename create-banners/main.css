@@ -39,3 +39,12 @@ td button {
 .no {
     opacity: 0.5;
 }
+
+#generateButton {
+    margin-top: 2vh;
+    padding: 5px;
+}
+
+input {
+    padding: 2px;
+}

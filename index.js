@@ -60,25 +60,6 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-// client.on('message', async msg => {
-//     if (msg.author.bot) {
-//         return;
-//     }
-
-//     const args = msg.content.slice(prefix.length).trim().split(/ +/);
-//     const command = args.shift().toLowerCase();
-
-//     if (!client.commands.has(command)) return;
-
-//     try {
-//         client.commands.get(command).execute(msg, args);
-//     } catch (error) {
-//         console.error(error);
-//         message.reply('That is an invalid command, use b!help if you wish to see a list of commands.');
-//     }
-// });
-
-
 client.on('interactionCreate', async interaction => {
     if (!interaction.isButton()) return;
     let x = interaction.customId.split(" ");
