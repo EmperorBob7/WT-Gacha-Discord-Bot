@@ -30,9 +30,9 @@ window.onload = async function () {
         let checkButton = document.createElement("button");
         checkButton.innerText = "✅";
         let i = index;
-        //checkButton.addEventListener("click", () => {
+        checkButton.addEventListener("click", () => {
             addToList(i, tr);
-        //});
+        });
         checkTD.appendChild(checkButton);
 
         let removeTD = document.createElement("td");
