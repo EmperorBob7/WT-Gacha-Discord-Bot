@@ -16,3 +16,4 @@ Go to `./utilities/rolling.js`
 Import the new banner at the top of the file and add it to this.series under the name you wish to use.
 
 Add a URL to the banner image as well in this.banners.
+Go to `./commands/roll.js` and add it to the addChoices function.

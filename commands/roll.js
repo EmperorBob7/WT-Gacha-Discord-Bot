@@ -14,7 +14,8 @@ module.exports = {
             .setDescription('The banner you wish to roll')
             .setRequired(true)
             .addChoices(
-                {name: "startDash", value: "starter"}
+                {name: "startDash", value: "starter"},
+                {name: "rigged", value: "rigged"}
             )),
     execute(msg, args) {
         if (getUser(msg.user.id) === undefined) {
