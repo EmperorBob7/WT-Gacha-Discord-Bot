@@ -16,6 +16,7 @@ const getUser = require("./commands/getUser.js").getById;
 
 const Rolling = require("./utilities/rolling.js");
 const gacha = new Rolling();
+const os = require('os');
 
 
 client.on('ready', async () => {
@@ -41,7 +42,7 @@ client.on('ready', async () => {
         console.error(error);
     }
 
-    client.channels.cache.get("825206515940982804").send("Started");
+    client.channels.cache.get("825206515940982804").send(os.hostname());
 });
 
 client.on('interactionCreate', async interaction => {
