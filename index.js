@@ -16,7 +16,7 @@ const getUser = require("./commands/getUser.js").getById;
 
 const Rolling = require("./utilities/rolling.js");
 const gacha = new Rolling();
-const os = require('os');
+//const os = require('os');
 
 
 client.on('ready', async () => {
@@ -33,7 +33,7 @@ client.on('ready', async () => {
         console.log('Started refreshing application (/) commands.');
 
         await rest.put(
-            Routes.applicationCommands("658766290454052886"),
+            Routes.applicationCommands("658766290454052886"), // Bot ID
             { body: commands },
         );
 
@@ -42,7 +42,7 @@ client.on('ready', async () => {
         console.error(error);
     }
 
-    client.channels.cache.get("825206515940982804").send(os.hostname());
+    client.channels.cache.get("825206515940982804").send("Started");
 });
 
 client.on('interactionCreate', async interaction => {
