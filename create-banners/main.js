@@ -50,6 +50,7 @@ window.onload = async function () {
         tr.classList.add("no");
 
         table.appendChild(tr);
+        addToList(i, tr);
         index++;
     }
 };
@@ -78,9 +79,10 @@ function generateData() {
             if(character.id < 4) {
                 continue;
             }
+            console.log(data.length);
             let current = {
                 "id": Number(character.id),
-                "weight": Number(document.getElementById(`rate${character.rarity}`).value) / data.length
+                "weight": Number(document.getElementById(`rate${character.rarity}`).value) * 100 / data.length
             };
             out.push(current);
         }
