@@ -5,7 +5,7 @@ const SpreadSheet = require("./utilities/spreadsheet");
 const spreadsheet = new SpreadSheet();
 module.exports = spreadsheet;
 
-const { Client, GatewayIntentBits, Partials, Routes, Collection, EmbedBuilder, Message, ButtonInteraction } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, Routes, Collection, EmbedBuilder, Message, ButtonInteraction, Events} = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const client = new Client({ intents: [GatewayIntentBits.Guilds], partials: [Partials.Channel] });
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
@@ -45,7 +45,7 @@ client.on('ready', async () => {
     client.channels.cache.get("825206515940982804").send("Started");
 });
 
-client.on('interactionCreate', async interaction => {
+client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     const command = client.commands.get(interaction.commandName);
@@ -54,6 +54,7 @@ client.on('interactionCreate', async interaction => {
 
     try {
         await interaction.deferReply();
+        console.log("EXECUTING");
         await command.execute(interaction);
     } catch (error) {
         console.error(error);
@@ -98,7 +99,7 @@ function roll(msg, banner) {
         rollResult = gacha.getCharacter(rollResult.pick.id);
         msg.reply({
             embeds: [new EmbedBuilder()
-                .setDescription(`${msg.user.username}#${msg.user.discriminator} You Pulled: ${rollResult.name}`)
+                .setDescription(`**${msg.user.username}** You Pulled: ${rollResult.name}`)
                 .setImage(rollResult.source)]
         });
     }
